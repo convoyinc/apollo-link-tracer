@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -e
+
+yarn run test:compile
+yarn run test:style
+yarn run test:unit
+yarn run test:integration
+yarn run test:template-cleanup

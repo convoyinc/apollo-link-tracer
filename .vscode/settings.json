@@ -1,0 +1,37 @@
+{
+    // Editor
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.rulers": [80, 120],
+
+    // Files
+    "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true,
+    "files.exclude": {
+      "**/.DS_Store": true,
+      "**/.git/**": true,
+      "**/node_modules/**": true,
+      "**/dist/**": true,
+      "{src,test}/**/*.d.ts": true,
+      "{src,test}/**/*.js": true,
+      ".nyc_output/**": true,
+      "coverage/**": true
+    },
+    "files.watcherExclude": {
+      "**/.DS_Store": true,
+      "**/.git/objects/**": true,
+      "**/node_modules/**": true,
+      "**/dist/**": true,
+      "{src,test}/**/*.d.ts": true,
+      "{src,test}/**/*.js": true,
+      ".nyc_output/**": true,
+      "coverage/**": true
+    },
+
+    // TypeScript
+    "typescript.tsdk": "./node_modules/typescript/lib",
+
+    // TSLint
+    "tslint.autoFixOnSave": true,
+    "tslint.ignoreDefinitionFiles": false
+  }

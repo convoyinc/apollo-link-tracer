@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "downlevelIteration": true,
+    "importHelpers": true,
+    "inlineSourceMap": true,
+    "lib": ["dom", "es2015", "esnext.asynciterable", "scripthost"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "newLine": "LF",
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "pretty": true,
+    "stripInternal": true,
+    "strictNullChecks": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "target": "es5"
+  }
+}

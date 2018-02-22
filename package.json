@@ -1,0 +1,55 @@
+{
+  "name": "apollo-link-tracer",
+  "version": "1.0.0",
+  "description": "Trace your apollo queries and mutations",
+  "license": "Apache-2.0",
+  "files": ["*.md", "src/**.js", "src/**.d.ts"],
+  "main": "./src/index.js",
+  "typings": "./src/index.d.ts",
+  "repository": "convoyinc/apollo-link-tracer",
+  "scripts": {
+    "clean": "./scripts/clean.sh",
+    "deps": "./scripts/deps.sh",
+    "dev": "./scripts/dev.sh",
+    "compile": "./scripts/compile.sh",
+    "release": "./scripts/release.sh",
+    "start": "./scripts/start.sh",
+    "test": "./scripts/test.sh",
+    "test:compile": "./scripts/test:compile.sh",
+    "test:integration": "./scripts/test:integration.sh",
+    "test:style": "./scripts/test:style.sh",
+    "test:unit": "./scripts/test:unit.sh",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,json,md,ts}": [
+      "prettier --single-quote --trailing-comma all --write",
+      "git add"
+    ]
+  },
+  "dependencies": {
+    "@convoy/tracer": "^0.0.93",
+    "apollo-link": "^1.1.0",
+    "tslib": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^3.5.2",
+    "@types/chai-as-promised": "^0.0.30",
+    "@types/node": "^6.0.52",
+    "@types/sinon": "^2.3.4",
+    "@types/sinon-chai": "^2.7.29",
+    "chai": "^3.5.0",
+    "chai-as-promised": "^6.0.0",
+    "chai-jest-diff": "nevir/chai-jest-diff#built-member-assertions",
+    "husky": "^0.14.3",
+    "jest": "^21.1.0",
+    "jest-junit": "^3.0.0",
+    "lint-staged": "^6.0.1",
+    "prettier": "^1.10.2",
+    "sinon": "^3.2.1",
+    "sinon-chai": "^2.13.0",
+    "tslint": "^5.8.0",
+    "tslint-no-unused-expression-chai": "0.0.3",
+    "typescript": "^2.4.1"
+  }
+}
