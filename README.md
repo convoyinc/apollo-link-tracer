@@ -9,7 +9,7 @@ Relies on [@convoy/tracer](https://github.com/convoyinc/tracer).
 npm install apollo-link-tracer --save
 ```
 
-```
+```js
 import ApolloLinkTracer from 'apollo-link-tracer';
 import { Reporter } from '@convoy/tracer';
 
@@ -67,7 +67,7 @@ A Tracer object is added to the operation context, which can then be used to pas
 
 On a per GQL request basis you can alter how the trace is captured.
 
-```
+```js
 api.mutate({
   mutation,
   variables,
