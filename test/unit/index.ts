@@ -32,7 +32,7 @@ describe(`ApolloLinkTracer`, () => {
     });
   });
 
-  it(`does not affect different queries`, () => {
+  it.skip(`does not affect different queries`, () => {
     const document: DocumentNode = gql`
       query test1($x: String) {
         test(x: $x)
