@@ -44,8 +44,6 @@ test:
         environment:
           MOCHA_FILE: "$CIRCLE_TEST_REPORTS/test:integration.xml"
 
-    - yarn run test:template-cleanup
-
 deployment:
   deploy:
     branch: master
