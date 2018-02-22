@@ -37,13 +37,6 @@ test:
         environment:
           MOCHA_FILE: "$CIRCLE_TEST_REPORTS/test:unit.xml"
 
-    - yarn run test:integration:
-        parallel: true
-        files:
-          - test/integration/**/*.{ts,tsx}
-        environment:
-          MOCHA_FILE: "$CIRCLE_TEST_REPORTS/test:integration.xml"
-
 deployment:
   deploy:
     branch: master

@@ -4,7 +4,7 @@ import { Span, Tracer, TracerConfiguration } from '@convoy/tracer';
 export default class ApolloLinkTracer extends ApolloLink {
   private service: string;
   private tracerConfig: TracerConfiguration;
-  private name: string;
+  private name?: string;
 
   constructor({
     service,
@@ -13,7 +13,7 @@ export default class ApolloLinkTracer extends ApolloLink {
   }: {
     service: string;
     tracerConfig: TracerConfiguration;
-    name: string;
+    name?: string;
   }) {
     super();
     this.service = service;

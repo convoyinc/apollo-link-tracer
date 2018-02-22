@@ -16,7 +16,6 @@
     "start": "./scripts/start.sh",
     "test": "./scripts/test.sh",
     "test:compile": "./scripts/test:compile.sh",
-    "test:integration": "./scripts/test:integration.sh",
     "test:style": "./scripts/test:style.sh",
     "test:unit": "./scripts/test:unit.sh",
     "precommit": "lint-staged"
@@ -35,12 +34,16 @@
   "devDependencies": {
     "@types/chai": "^3.5.2",
     "@types/chai-as-promised": "^0.0.30",
+    "@types/graphql": "^0.12.4",
+    "@types/lodash": "^4.14.104",
     "@types/node": "^6.0.52",
     "@types/sinon": "^2.3.4",
     "@types/sinon-chai": "^2.7.29",
     "chai": "^3.5.0",
     "chai-as-promised": "^6.0.0",
     "chai-jest-diff": "nevir/chai-jest-diff#built-member-assertions",
+    "graphql": "^0.13.1",
+    "graphql-tag": "^2.8.0",
     "husky": "^0.14.3",
     "jest": "^21.1.0",
     "jest-junit": "^3.0.0",
@@ -50,6 +53,6 @@
     "sinon-chai": "^2.13.0",
     "tslint": "^5.8.0",
     "tslint-no-unused-expression-chai": "0.0.3",
-    "typescript": "^2.4.1"
+    "typescript": "^2.7.2"
   }
 }
