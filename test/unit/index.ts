@@ -1,7 +1,8 @@
 import { Reporter } from '@convoy/tracer';
-import { ApolloLink, execute, GraphQLRequest } from 'apollo-link';
+import { ApolloLink, execute, GraphQLRequest, Observable } from 'apollo-link';
 import gql from 'graphql-tag';
 import { DocumentNode } from 'graphql';
+import * as sinon from 'sinon';
 
 import ApolloLinkTracer from '../../src';
 
@@ -18,28 +19,31 @@ function getOperationName(doc: DocumentNode): string | null {
 describe(`ApolloLinkTracer`, () => {
   let reporter: Reporter;
   let tracer: ApolloLinkTracer;
+  let stub: sinon.SinonStub;
 
   beforeEach(() => {
+    stub = sinon.stub();
+
     reporter = new Reporter({
-      flushHandler: () => {},
+      flushHandler: stub,
     });
 
     tracer = new ApolloLinkTracer({
       service: 'my-service',
       tracerConfig: {
+        fullTraceSampleRate: 1,
         reporter,
       },
     });
   });
 
-  it.skip(`does not affect different queries`, () => {
+  it(`successfully links the next link and completes trace`, done => {
     const document: DocumentNode = gql`
       query test1($x: String) {
         test(x: $x)
       }
     `;
     const variables1 = { x: 'Hello World' };
-    const variables2 = { x: 'Goodbye World' };
 
     const request1: GraphQLRequest = {
       query: document,
@@ -47,23 +51,62 @@ describe(`ApolloLinkTracer`, () => {
       operationName: getOperationName(document)!,
     };
 
-    const request2: GraphQLRequest = {
+    let called = 0;
+    const link = ApolloLink.from([
+      tracer,
+      new ApolloLink(operation => {
+        called += 1;
+        return new Observable(observer => {
+          observer.next({});
+          observer.complete();
+        });
+      }),
+    ]);
+
+    execute(link, request1).subscribe(result => {
+      expect(called).to.be.eq(1);
+      reporter.flushIfNeeded();
+      expect(stub).to.have.been.called;
+      done();
+      return null;
+    });
+  });
+
+  it(`doesnt do trace if avoidTrace specified`, done => {
+    const document: DocumentNode = gql`
+      query test1($x: String) {
+        test(x: $x)
+      }
+    `;
+    const variables1 = { x: 'Hello World' };
+
+    const request1: GraphQLRequest = {
       query: document,
-      variables: variables2,
+      variables: variables1,
       operationName: getOperationName(document)!,
+      context: {
+        avoidTrace: true,
+      },
     };
 
     let called = 0;
     const link = ApolloLink.from([
       tracer,
-      new ApolloLink(() => {
+      new ApolloLink(operation => {
         called += 1;
-        return null;
+        return new Observable(observer => {
+          observer.next({});
+          observer.complete();
+        });
       }),
     ]);
 
-    execute(link, request1);
-    execute(link, request2);
-    expect(called).to.be.eq(2);
+    execute(link, request1).subscribe(result => {
+      expect(called).to.be.eq(1);
+      reporter.flushIfNeeded();
+      expect(stub).to.not.have.been.called;
+      done();
+      return null;
+    });
   });
 });
