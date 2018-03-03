@@ -44,11 +44,21 @@ export default class ApolloLinkTracer extends ApolloLink {
       const resource = context.traceResource || operation.operationName;
       span = tracer.start(resource, name, service);
     }
+    span.setMeta({
+      variables: JSON.stringify(operation.variables),
+    });
     return new Observable(observer => {
       const sub = forward(operation).subscribe({
         next: result => {
           if (result.errors) {
-            span.setError(result.errors[0]);
+            span.error = 1;
+            result.errors.forEach((error, index) => {
+              span.setMeta({
+                [`error${index ? index + 1 : ''}.name`]: error.name,
+                [`error${index ? index + 1 : ''}.message`]: error.message,
+                [`error${index ? index + 1 : ''}.path`]: error.path!.join(''),
+              });
+            });
           }
           if (tracer.get() === span) {
             tracer.end();
