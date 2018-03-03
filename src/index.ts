@@ -56,7 +56,9 @@ export default class ApolloLinkTracer extends ApolloLink {
               span.setMeta({
                 [`error${index ? index + 1 : ''}.name`]: error.name,
                 [`error${index ? index + 1 : ''}.message`]: error.message,
-                [`error${index ? index + 1 : ''}.path`]: error.path!.join(''),
+                [`error${index ? index + 1 : ''}.path`]: error.path
+                  ? error.path.join('')
+                  : '',
               });
             });
           }
