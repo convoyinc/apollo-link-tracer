@@ -1,9 +1,13 @@
 {
   "name": "apollo-link-tracer",
-  "version": "1.0.0",
+  "version": "1.0.14",
   "description": "Trace your apollo queries and mutations",
   "license": "Apache-2.0",
-  "files": ["*.md", "src/**.js", "src/**.d.ts"],
+  "files": [
+    "*.md",
+    "src/**.js",
+    "src/**.d.ts"
+  ],
   "main": "./src/index.js",
   "typings": "./src/index.d.ts",
   "repository": "convoyinc/apollo-link-tracer",
