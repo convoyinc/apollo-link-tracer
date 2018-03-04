@@ -63,9 +63,9 @@ describe(`ApolloLinkTracer`, () => {
       }),
     ]);
 
-    execute(link, request1).subscribe(result => {
+    execute(link, request1).subscribe(async result => {
       expect(called).to.be.eq(1);
-      reporter.flushIfNeeded();
+      await reporter.flushIfNeeded();
       expect(stub).to.have.been.called;
       done();
       return null;
@@ -101,9 +101,9 @@ describe(`ApolloLinkTracer`, () => {
       }),
     ]);
 
-    execute(link, request1).subscribe(result => {
+    execute(link, request1).subscribe(async result => {
       expect(called).to.be.eq(1);
-      reporter.flushIfNeeded();
+      await reporter.flushIfNeeded();
       expect(stub).to.not.have.been.called;
       done();
       return null;
