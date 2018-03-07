@@ -38,6 +38,7 @@ export default class ApolloLinkTracer extends ApolloLink {
     this.tracerConfig = tracerConfig;
     this.name = name;
     this.networkErrorAnnotator = networkErrorAnnotator;
+    this.graphQLErrorAnnotator = graphQLErrorAnnotator;
   }
 
   request(operation: Operation, forward: NextLink) {
