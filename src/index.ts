@@ -1,24 +1,43 @@
-import { ApolloLink, NextLink, Observable, Operation } from 'apollo-link';
+import {
+  ApolloLink,
+  FetchResult,
+  NextLink,
+  Observable,
+  Operation,
+} from 'apollo-link';
 import { Span, Tracer, TracerConfiguration } from '@convoy/tracer';
+
+export type ErrorAnnotatorFunction = (span: Span, error: Error) => void;
+export type GraphQLErrorAnnotatorFunction = (
+  span: Span,
+  result: FetchResult,
+) => void;
 
 export default class ApolloLinkTracer extends ApolloLink {
   private service: string;
   private tracerConfig: TracerConfiguration;
   private name?: string;
+  private networkErrorAnnotator: ErrorAnnotatorFunction;
+  private graphQLErrorAnnotator: GraphQLErrorAnnotatorFunction;
 
   constructor({
     service,
     tracerConfig,
     name,
+    networkErrorAnnotator = baseErrorAnnotator,
+    graphQLErrorAnnotator = baseGQLAnnotator,
   }: {
     service: string;
     tracerConfig: TracerConfiguration;
     name?: string;
+    networkErrorAnnotator?: ErrorAnnotatorFunction;
+    graphQLErrorAnnotator?: GraphQLErrorAnnotatorFunction;
   }) {
     super();
     this.service = service;
     this.tracerConfig = tracerConfig;
     this.name = name;
+    this.networkErrorAnnotator = networkErrorAnnotator;
   }
 
   request(operation: Operation, forward: NextLink) {
@@ -51,16 +70,7 @@ export default class ApolloLinkTracer extends ApolloLink {
       const sub = forward(operation).subscribe({
         next: result => {
           if (result.errors) {
-            span.error = 1;
-            result.errors.forEach((error, index) => {
-              span.setMeta({
-                [`error${index ? index + 1 : ''}.name`]: error.name,
-                [`error${index ? index + 1 : ''}.message`]: error.message,
-                [`error${index ? index + 1 : ''}.path`]: error.path
-                  ? error.path.join('')
-                  : '',
-              });
-            });
+            this.graphQLErrorAnnotator(span, result);
           }
           if (tracer.get() === span) {
             tracer.end();
@@ -70,7 +80,7 @@ export default class ApolloLinkTracer extends ApolloLink {
           observer.next(result);
         },
         error: networkError => {
-          span.setError(networkError);
+          this.networkErrorAnnotator(span, networkError);
           if (tracer.get() === span) {
             tracer.end();
           } else {
@@ -86,4 +96,22 @@ export default class ApolloLinkTracer extends ApolloLink {
       };
     });
   }
+}
+
+function baseErrorAnnotator(span: Span, error: Error) {
+  span.setError(error);
+}
+
+export function baseGQLAnnotator(span: Span, result: FetchResult) {
+  if (!result.errors) return;
+  span.error = 1;
+  result.errors.forEach((error, index) => {
+    span.setMeta({
+      [`error${index ? index + 1 : ''}.name`]: error.name,
+      [`error${index ? index + 1 : ''}.message`]: error.message,
+      [`error${index ? index + 1 : ''}.path`]: error.path
+        ? error.path.join('')
+        : '',
+    });
+  });
 }
