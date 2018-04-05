@@ -27,7 +27,7 @@
     ]
   },
   "dependencies": {
-    "@convoy/tracer": "^0.0.93",
+    "@convoy/tracer": "^1.0.144",
     "apollo-link": "^1.1.0",
     "tslib": "^1.6.0"
   },

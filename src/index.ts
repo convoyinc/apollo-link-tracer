@@ -5,7 +5,14 @@ import {
   Observable,
   Operation,
 } from 'apollo-link';
-import { Span, Tracer, TracerConfiguration } from '@convoy/tracer';
+import {
+  AnnotatorFunction,
+  SpanMeta,
+  Span,
+  SpanTags,
+  Tracer,
+  TracerConfiguration,
+} from '@convoy/tracer';
 
 export type ErrorAnnotatorFunction = (span: Span, error: Error) => void;
 export type GraphQLErrorAnnotatorFunction = (
@@ -17,6 +24,9 @@ export default class ApolloLinkTracer extends ApolloLink {
   private service: string;
   private tracerConfig: TracerConfiguration;
   private name?: string;
+  private annotator?: AnnotatorFunction;
+  private metadata?: SpanMeta;
+  private tags?: SpanTags;
   private networkErrorAnnotator: ErrorAnnotatorFunction;
   private graphQLErrorAnnotator: GraphQLErrorAnnotatorFunction;
 
@@ -24,12 +34,18 @@ export default class ApolloLinkTracer extends ApolloLink {
     service,
     tracerConfig,
     name,
+    annotator,
+    metadata,
+    tags,
     networkErrorAnnotator = baseErrorAnnotator,
     graphQLErrorAnnotator = baseGQLAnnotator,
   }: {
     service: string;
     tracerConfig: TracerConfiguration;
     name?: string;
+    annotator?: AnnotatorFunction;
+    metadata?: SpanMeta;
+    tags?: SpanTags;
     networkErrorAnnotator?: ErrorAnnotatorFunction;
     graphQLErrorAnnotator?: GraphQLErrorAnnotatorFunction;
   }) {
@@ -37,6 +53,9 @@ export default class ApolloLinkTracer extends ApolloLink {
     this.service = service;
     this.tracerConfig = tracerConfig;
     this.name = name;
+    this.metadata = metadata;
+    this.tags = tags;
+    this.annotator = annotator;
     this.networkErrorAnnotator = networkErrorAnnotator;
     this.graphQLErrorAnnotator = graphQLErrorAnnotator;
   }
@@ -65,7 +84,13 @@ export default class ApolloLinkTracer extends ApolloLink {
       span = tracer.start(resource, name, service);
     }
     span.setMeta({
+      ...context.traceMetadata,
+      ...this.metadata,
       variables: JSON.stringify(operation.variables),
+    });
+    span.setTags({
+      ...context.traceTags,
+      ...this.tags,
     });
     return new Observable(observer => {
       const sub = forward(operation).subscribe({
@@ -77,6 +102,10 @@ export default class ApolloLinkTracer extends ApolloLink {
             tracer.end();
           } else {
             span.end();
+          }
+          const annotator = context.traceAnnotator || this.annotator;
+          if (annotator) {
+            annotator(span);
           }
           observer.next(result);
         },
@@ -106,6 +135,10 @@ function baseErrorAnnotator(span: Span, error: Error) {
 export function baseGQLAnnotator(span: Span, result: FetchResult) {
   if (!result.errors) return;
   span.error = 1;
+  span.setTags({
+    error: '1',
+    [`error.name`]: result.errors[0].name,
+  });
   result.errors.forEach((error, index) => {
     span.setMeta({
       [`error${index ? index + 1 : ''}.name`]: error.name,
