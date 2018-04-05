@@ -31,7 +31,7 @@ describe(`ApolloLinkTracer`, () => {
     tracer = new ApolloLinkTracer({
       service: 'my-service',
       tracerConfig: {
-        fullTraceSampleRate: 1,
+        sampleRate: 1,
         reporter,
       },
     });
