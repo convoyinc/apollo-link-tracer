@@ -136,18 +136,15 @@ export default class ApolloLinkTracer extends ApolloLink {
 function variablesToMetaTag(variables: {}, variableFilters: VariableFilter[]) {
   const filteredVariables = { ...variables };
   for (const varName of Object.keys(filteredVariables)) {
-    console.log(`varName: ${varName}`); // tslint:disable-line
     for (const filter of variableFilters) {
       if (
         (filter instanceof RegExp && filter.test(varName)) ||
         (typeof filter === 'string' && filter === varName)
       ) {
-        console.log(`filtering!`); // tslint:disable-line
         filteredVariables[varName] = '<filtered>';
       }
     }
   }
-  console.log(`span variables meta tag: ${JSON.stringify(filteredVariables)}`); // tslint:disable-line
   return JSON.stringify(filteredVariables);
 }
 
