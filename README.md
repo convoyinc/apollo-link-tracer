@@ -5,6 +5,7 @@ Trace your apollo queries and mutations with [apollo-link](https://github.com/ap
 Relies on [@convoy/tracer](https://github.com/convoyinc/tracer).
 
 ## Getting started
+
 ```
 npm install apollo-link-tracer --save
 ```
@@ -55,8 +56,8 @@ new ApolloClient({
     }),
 
     new HttpLink({ uri, fetch }),
-  ])
-})
+  ]),
+});
 ```
 
 Applying apollo-link-tracer both before and after the retry link lets you separately measure each retry, but provides a single trace across all of them.
@@ -78,7 +79,35 @@ api.mutate({
     traceService: 'my-service',
     traceName: 'apollo-link-mutate',
     traceResource: 'getSomething',
-    avoidTrace: false,                // If true, skips tracing
+    avoidTrace: false, // If true, skips tracing
   },
 });
+```
+
+#### Filtering Sensitive Variables
+
+To avoid reporting the contents of sensitive variables, you can specify variable filters.
+
+```js
+new ApolloLinkTracer({
+  service: 'my-service',
+  tracerConfig: {
+    reporter: apiReporter,
+    fullTraceSampleRate: 1,
+  },
+  name: 'apollo-link-retry',
+  variableFilters: ['password', /secret.*sauce/],
+}),
+```
+
+Variable filters can be either string matches or regular expressions. Any variables whose names match these filters will have their values filtered out, e.g.
+
+```js
+{ username: 'bob', password: 'hunter2', secret_hot_sauce: 'sri racha'}
+```
+
+becomes
+
+```js
+{ username: 'bob', password: '<filtered>', secret_hot_sauce: '<filtered>'}
 ```

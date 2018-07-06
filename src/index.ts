@@ -19,6 +19,7 @@ export type GraphQLErrorAnnotatorFunction = (
   span: Span,
   result: FetchResult,
 ) => void;
+export type VariableFilter = string | RegExp;
 
 export default class ApolloLinkTracer extends ApolloLink {
   private service: string;
@@ -29,6 +30,7 @@ export default class ApolloLinkTracer extends ApolloLink {
   private tags?: SpanTags;
   private networkErrorAnnotator: ErrorAnnotatorFunction;
   private graphQLErrorAnnotator: GraphQLErrorAnnotatorFunction;
+  private variableFilters: VariableFilter[];
 
   constructor({
     service,
@@ -39,6 +41,7 @@ export default class ApolloLinkTracer extends ApolloLink {
     tags,
     networkErrorAnnotator = baseErrorAnnotator,
     graphQLErrorAnnotator = baseGQLAnnotator,
+    variableFilters = [],
   }: {
     service: string;
     tracerConfig: TracerConfiguration;
@@ -48,6 +51,7 @@ export default class ApolloLinkTracer extends ApolloLink {
     tags?: SpanTags;
     networkErrorAnnotator?: ErrorAnnotatorFunction;
     graphQLErrorAnnotator?: GraphQLErrorAnnotatorFunction;
+    variableFilters?: VariableFilter[];
   }) {
     super();
     this.service = service;
@@ -58,6 +62,7 @@ export default class ApolloLinkTracer extends ApolloLink {
     this.annotator = annotator;
     this.networkErrorAnnotator = networkErrorAnnotator;
     this.graphQLErrorAnnotator = graphQLErrorAnnotator;
+    this.variableFilters = variableFilters;
   }
 
   request(operation: Operation, forward: NextLink) {
@@ -86,7 +91,7 @@ export default class ApolloLinkTracer extends ApolloLink {
     span.setMeta({
       ...context.traceMetadata,
       ...this.metadata,
-      variables: JSON.stringify(operation.variables),
+      variables: variablesToMetaTag(operation.variables, this.variableFilters),
     });
     span.setTags({
       ...context.traceTags,
@@ -126,6 +131,21 @@ export default class ApolloLinkTracer extends ApolloLink {
       };
     });
   }
+}
+
+function variablesToMetaTag(variables: {}, variableFilters: VariableFilter[]) {
+  const filteredVariables = { ...variables };
+  for (const varName of Object.keys(filteredVariables)) {
+    for (const filter of variableFilters) {
+      if (
+        (filter instanceof RegExp && filter.test(varName)) ||
+        (typeof filter === 'string' && filter === varName)
+      ) {
+        filteredVariables[varName] = '<filtered>';
+      }
+    }
+  }
+  return JSON.stringify(filteredVariables);
 }
 
 function baseErrorAnnotator(span: Span, error: Error) {
