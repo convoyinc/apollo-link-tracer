@@ -2,7 +2,7 @@ machine:
   services:
     - docker
   node:
-    version: 8.9.1
+    version: 10.13.0
   environment:
     DOCKER_CACHE_DIR: /home/ubuntu/docker_cache
 
